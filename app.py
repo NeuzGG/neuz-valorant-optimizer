@@ -28,6 +28,15 @@ import hardware_scan
 import recommend
 import config_manager
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 # Design Color Palette
 COLOR_BG = "#0f1115"
 COLOR_PANEL = "#161920"
@@ -73,19 +82,21 @@ class ValorantOptimizerApp:
 
     def load_assets(self):
         # 1. Set window icon
+        icon_path = resource_path("icon.ico")
         try:
-            if os.path.exists("icon.ico"):
-                self.root.iconbitmap("icon.ico")
+            if os.path.exists(icon_path):
+                self.root.iconbitmap(icon_path)
         except Exception as e:
             logger.warning(f"Failed to set window icon: {e}")
 
         # 2. Load logo image for CustomTkinter
         self.logo_image = None
+        logo_path = resource_path("logo.jpg")
         if HAS_CTK:
             try:
                 from PIL import Image
-                if os.path.exists("logo.jpg"):
-                    raw_img = Image.open("logo.jpg")
+                if os.path.exists(logo_path):
+                    raw_img = Image.open(logo_path)
                     self.logo_image = ctk.CTkImage(light_image=raw_img, dark_image=raw_img, size=(60, 60))
             except Exception as e:
                 logger.warning(f"Failed to load CTk logo image: {e}")
@@ -94,8 +105,8 @@ class ValorantOptimizerApp:
         self.tk_logo_image = None
         try:
             from PIL import Image, ImageTk
-            if os.path.exists("logo.jpg"):
-                raw_img = Image.open("logo.jpg").resize((60, 60), Image.Resampling.LANCZOS)
+            if os.path.exists(logo_path):
+                raw_img = Image.open(logo_path).resize((60, 60), Image.Resampling.LANCZOS)
                 self.tk_logo_image = ImageTk.PhotoImage(raw_img)
         except Exception as e:
             logger.warning(f"Failed to load Tkinter logo image: {e}")
